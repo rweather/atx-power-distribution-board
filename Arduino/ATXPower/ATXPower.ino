@@ -21,6 +21,7 @@
  */
 
 // Pin assignment.
+#define STATUS_LED  13      // Status LED on the Arduino.
 #define POWER_LED   A0      // Output, active-high, turn on the power LED.
 #define POWER_BTN   A1      // Input, active-low, power button.
 #define RESET_CTRL  A2      // Output, active-high, hold computer in reset.
@@ -108,10 +109,12 @@ void setup()
 {
     // Initialise the outputs.
     digitalWrite(POWER_LED, LOW);   // Power LED is off at startup.
+    digitalWrite(STATUS_LED, LOW);
     digitalWrite(RESET_CTRL, HIGH); // Hold the computer in reset for now.
     digitalWrite(POWER_ON, LOW);    // Don't turn on the power supply yet.
 
     // Configure all pins to the desired modes.
+    pinMode(STATUS_LED, OUTPUT);
     pinMode(POWER_LED, OUTPUT);
     pinMode(POWER_BTN, INPUT_PULLUP);
     pinMode(RESET_CTRL, OUTPUT);
@@ -132,6 +135,7 @@ void shutdown(bool withReset = true)
     }
     digitalWrite(POWER_ON, LOW);
     digitalWrite(POWER_LED, LOW);
+    digitalWrite(STATUS_LED, LOW);
     powerButton.setTimeout(POWER_BTN_ON_TIME);
 }
 
@@ -170,6 +174,8 @@ void loop()
         if (!powerButton.isPressed()) {
             // Turn on the supply, while still holding the computer in reset.
             digitalWrite(POWER_ON, HIGH);
+            digitalWrite(POWER_LED, HIGH);
+            digitalWrite(STATUS_LED, HIGH);
             powerButton.setTimeout(POWER_BTN_OFF_TIME);
             startTimeout(POWER_UP_TIME);
             state = STATE_POWERING_UP;
